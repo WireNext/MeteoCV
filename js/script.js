@@ -1,3 +1,4 @@
+// 1. TEMA
 function initTheme() {
     const theme = localStorage.getItem("theme") || "light";
     document.documentElement.setAttribute("data-theme", theme);
@@ -12,6 +13,7 @@ function initTheme() {
     }
 }
 
+// 2. BUSCAR TIEMPO
 async function buscarTiempo(poble, targetId) {
     const container = document.getElementById(targetId);
     if (!container) return;
@@ -20,10 +22,12 @@ async function buscarTiempo(poble, targetId) {
         const geoData = await geo.json();
         if (!geoData.results) return;
         const m = geoData.results[0];
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${m.latitude}&longitude=${m.longitude}&current=temperature_2m,weather_code,apparent_temperature,wind_speed_10m&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`);
+        
+        // PETICIÓN CON MÁS DATOS: Humedad, UV, Prob. Lluvia, Viento
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${m.latitude}&longitude=${m.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,apparent_temperature,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max&timezone=auto`);
         const d = await res.json();
         renderizar(d, m.name, targetId);
-    } catch (e) { console.error("Error:", e); }
+    } catch (e) { console.error(e); }
 }
 
 function obtenerIcono(code) {
@@ -37,56 +41,91 @@ function renderizar(data, nombre, targetId) {
     const { current, daily, hourly } = data;
     const horaActual = new Date().getHours();
 
-    // BLOQUE PRINCIPAL (ESTILO IPHONE)
     let html = `
-        <div style="padding: 3rem 1rem; text-align: center;">
-            <h1 style="margin:0; font-weight:400; font-size:2.2rem;">${nombre}</h1>
-            <div style="font-size:6rem; margin: 10px 0;">${obtenerIcono(current.weather_code)}</div>
-            <div style="font-size:5rem; font-weight:200; margin-left: 15px;">${Math.round(current.temperature_2m)}°</div>
-            <p style="font-size:1.2rem; opacity:0.9; margin:0;">Sensació: ${Math.round(current.apparent_temperature)}°</p>
-            <p style="font-weight:500;">Máx: ${Math.round(daily.temperature_2m_max[0])}°  Mín: ${Math.round(daily.temperature_2m_min[0])}°</p>
-        </div>`;
+        <div style="padding: 2rem 1rem; text-align: center;">
+            <h1 style="margin:0; font-weight:300; font-size:2rem;">${nombre}</h1>
+            <div style="font-size:5rem; margin:10px 0;">${obtenerIcono(current.weather_code)}</div>
+            <div style="font-size:4.5rem; font-weight:200;">${Math.round(current.temperature_2m)}°</div>
+            <p>Máx: ${Math.round(daily.temperature_2m_max[0])}° Mín: ${Math.round(daily.temperature_2m_min[0])}°</p>
+        </div>
 
-    // SLIDER HORAS
-    html += `
         <div class="column">
             <h2>Pròximes 24 hores</h2>
             <div id="proximas-horas-container">`;
+    
     for (let i = horaActual; i < horaActual + 24; i++) {
         html += `
             <div class="hora-item">
-                <div style="font-size:0.8rem; opacity:0.8;">${i % 24}h</div>
-                <div style="font-size:1.8rem; margin:8px 0;">${obtenerIcono(hourly.weather_code[i])}</div>
+                <div style="font-size:0.7rem; opacity:0.7;">${i % 24}h</div>
+                <div style="font-size:1.5rem; margin:5px 0;">${obtenerIcono(hourly.weather_code[i])}</div>
                 <div style="font-weight:bold;">${Math.round(hourly.temperature_2m[i])}°</div>
             </div>`;
     }
-    html += `</div></div>`;
-
-    // LISTA 7 DÍAS
-    if (targetId === "resultado-tiempo") {
-        html += `<div class="column"><h2>Previsió 7 dies</h2><div class="previsio-grid">`;
-        for (let i = 0; i < 7; i++) {
-            const dia = new Date(daily.time[i]).toLocaleDateString("ca",{weekday:'long'});
-            html += `
-                <div class="dia-caja">
-                    <span style="flex:1; text-transform:capitalize;">${i === 0 ? 'Hui' : dia}</span>
-                    <span style="flex:1; text-align:center; font-size:1.5rem;">${obtenerIcono(daily.weather_code[i])}</span>
-                    <span style="flex:1; text-align:right; font-weight:500;">
-                        ${Math.round(daily.temperature_2m_max[i])}° <span style="opacity:0.5; font-weight:300;">${Math.round(daily.temperature_2m_min[i])}°</span>
-                    </span>
-                </div>`;
-        }
-        html += `</div></div>`;
+    
+    html += `</div></div><div class="column"><h2>Previsió 7 dies</h2>`;
+    
+    for (let i = 0; i < 7; i++) {
+        const dia = new Date(daily.time[i]).toLocaleDateString("ca",{weekday:'long'});
+        html += `
+            <div class="dia-caja">
+                <span style="flex:1; text-transform:capitalize;">${i===0?'Hui':dia}</span>
+                <span style="flex:1; text-align:center; font-size:1.4rem;">${obtenerIcono(daily.weather_code[i])}</span>
+                <span style="flex:1; text-align:right;">${Math.round(daily.temperature_2m_max[i])}° / ${Math.round(daily.temperature_2m_min[i])}°</span>
+            </div>`;
     }
+    html += `</div>`;
+
+    // --- NUEVA SECCIÓN DE DETALLES (ESTILO IPHONE) ---
+    html += `
+        <div class="detalles-grid">
+            <div class="detalle-card">
+                <h3>💨 VENT</h3>
+                <div class="detalle-valor">${Math.round(current.wind_speed_10m)} <small>km/h</small></div>
+                <div class="detalle-sub">Velocitat actual</div>
+            </div>
+            <div class="detalle-card">
+                <h3>💧 HUMITAT</h3>
+                <div class="detalle-valor">${current.relative_humidity_2m}%</div>
+                <div class="detalle-sub">Punt de rosada</div>
+            </div>
+            <div class="detalle-card">
+                <h3>☀️ ÍNDEX UV</h3>
+                <div class="detalle-valor">${Math.round(daily.uv_index_max[0])}</div>
+                <div class="detalle-sub">${daily.uv_index_max[0] > 5 ? 'Elevat' : 'Baix'}</div>
+            </div>
+            <div class="detalle-card">
+                <h3>☔ PLUJA</h3>
+                <div class="detalle-valor">${hourly.precipitation_probability[horaActual]}%</div>
+                <div class="detalle-sub">Probabilitat hui</div>
+            </div>
+        </div>
+    `;
+
     container.innerHTML = html;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// INICIALIZACIÓN
+document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
-    const homeBox = document.getElementById("resultado-tiempo-home");
-    if (homeBox) {
-        const p = localStorage.getItem("ultimPobleBuscat");
-        if (p) buscarTiempo(p, "resultado-tiempo-home");
-        else homeBox.innerHTML = "<div style='padding:40px; text-align:center; opacity:0.7;'>📍 Benvingut. <br> Cerca el teu poble per començar.</div>";
+    const input = document.getElementById("buscador-input");
+    const dl = document.getElementById("municipios");
+    if(input) {
+        try {
+            const res = await fetch("municipis.json");
+            const data = await res.json();
+            data.municipis.forEach(m => {
+                const o = document.createElement("option"); o.value = m; dl.appendChild(o);
+            });
+        } catch(e){}
+        input.addEventListener("change", () => {
+            const p = input.value.trim();
+            if(p) {
+                localStorage.setItem("ultimPobleBuscat", p);
+                buscarTiempo(p, "resultado-tiempo-home");
+                input.blur();
+            }
+        });
     }
+    const p = localStorage.getItem("ultimPobleBuscat");
+    if(p) buscarTiempo(p, "resultado-tiempo-home");
 });

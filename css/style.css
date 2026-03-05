@@ -1,10 +1,9 @@
-/* --- VARIABLES ESTILO APPLE WEATHER (iOS) --- */
+/* --- VARIABLES ESTILO APPLE WEATHER --- */
 :root {
   --bg-gradient: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
   --text-color: #ffffff;
   --card-bg: rgba(255, 255, 255, 0.15); 
   --nav-bg: rgba(255, 255, 255, 0.25);
-  --accent: #ffffff;
   --blur: blur(25px);
 }
 
@@ -14,43 +13,46 @@
   --nav-bg: rgba(0, 0, 0, 0.4);
 }
 
-/* --- BASE --- */
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   margin: 0;
-  padding: 0;
   background: var(--bg-gradient);
   background-attachment: fixed;
   color: var(--text-color);
   min-height: 100vh;
   padding-bottom: 110px; 
-  transition: background 0.5s ease;
   overflow-x: hidden;
 }
 
-/* --- NAVEGACIÓN INFERIOR (CORREGIDA) --- */
+/* --- BUSCADOR --- */
+#search-wrapper { margin: 10px 0 25px; padding: 0 10px; }
+#buscador-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 14px 20px;
+    border-radius: 18px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    backdrop-filter: blur(10px);
+    box-sizing: border-box;
+}
+
+/* --- NAV INFERIOR --- */
 nav {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  
   position: fixed;
-  bottom: 15px; 
-  left: 50%;
+  bottom: 15px; left: 50%;
   transform: translateX(-50%);
-  
-  /* Ajuste de ancho */
-  width: 95%; 
-  max-width: 500px; 
-  height: 65px; /* Un poco más alta para que quepa el texto debajo */
-  
+  width: 95%; max-width: 480px; height: 65px;
   background: var(--nav-bg) !important;
   backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 25px;
   z-index: 10000;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   padding: 5px;
   box-sizing: border-box;
 }
@@ -60,102 +62,71 @@ nav a, #theme-toggle {
   color: white !important;
   flex: 1;
   display: flex;
-  flex-direction: column; /* Icono arriba, texto abajo */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  transition: all 0.2s ease;
   background: transparent;
   border: none;
-  cursor: pointer;
-  padding: 0;
-  min-width: 0; /* Permite que se encojan si es necesario */
+}
+.nav-icon { font-size: 1.3rem; margin-bottom: 2px; }
+.nav-label { font-size: 0.65rem; font-weight: 500; opacity: 0.9; }
+
+/* --- GRID DE DETALLES (ESTILO IPHONE) --- */
+.detalles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
-/* Tamaño de los iconos */
-nav a span, nav a i, .nav-icon {
-  font-size: 1.3rem; /* Más pequeño para que quepa */
-  margin-bottom: 2px;
+.detalle-card {
+    background: var(--card-bg);
+    backdrop-filter: var(--blur);
+    border-radius: 20px;
+    padding: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-/* Tamaño de los nombres (Muy pequeños estilo App) */
-.nav-label {
-  font-size: 0.65rem; 
-  font-weight: 500;
-  opacity: 0.9;
-  white-space: nowrap; /* Evita que el nombre salte de línea */
+.detalle-card h3 {
+    margin: 0;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    opacity: 0.6;
+    letter-spacing: 0.5px;
 }
 
-nav a:active {
-  transform: scale(0.9);
+.detalle-valor {
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin: 10px 0 5px;
 }
 
-/* --- CONTENEDORES --- */
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  box-sizing: border-box;
+.detalle-sub {
+    font-size: 0.8rem;
+    opacity: 0.8;
 }
 
-header h1 {
-  font-weight: 300;
-  font-size: 1.8rem;
-  text-align: center;
-  margin: 30px 0;
-}
-
+/* --- OTROS ELEMENTOS --- */
+.container { max-width: 700px; margin: 0 auto; padding: 20px; }
 .column {
   background: var(--card-bg) !important;
   backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
   border-radius: 25px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   margin-bottom: 25px;
   overflow: hidden;
 }
-
 .column h2 {
   font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
   background: rgba(255, 255, 255, 0.08);
-  padding: 12px 20px;
-  margin: 0;
-  font-weight: 600;
+  padding: 12px 20px; margin: 0;
 }
-
-/* --- ELEMENTOS DEL TIEMPO --- */
-#proximas-horas-container {
-    display: flex;
-    overflow-x: auto;
-    gap: 20px;
-    padding: 20px;
-    scrollbar-width: none;
-}
+#proximas-horas-container { display: flex; overflow-x: auto; gap: 20px; padding: 20px; scrollbar-width: none; }
 #proximas-horas-container::-webkit-scrollbar { display: none; }
-
 .hora-item { text-align: center; min-width: 55px; }
-.previsio-grid { padding: 10px 20px; }
-.dia-caja {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-/* --- IFRAMES --- */
-iframe {
-    width: 100%;
-    height: 500px;
-    border: none;
-    display: block;
-}
-
-footer {
-  text-align: center;
-  padding: 40px 20px 100px;
-  opacity: 0.5;
-  font-size: 0.8rem;
-}
+.dia-caja { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.map-column iframe { height: 350px; width: 100%; border: none; display: block; }
