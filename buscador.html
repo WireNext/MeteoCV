@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Temps al teu poble</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="multimedia/logo.png">
+</head>
+<body>
+  <header><h1>Cerca el teu municipi</h1></header>
+
+  <nav>
+    <a href="index.html">🏠 Inici</a>
+    <a href="avisos.html">⚠️ Avisos</a>
+    <a href="emergencies.html">🚨 Emergències</a>
+    <a href="radar.html">🌧️ Radar</a>
+    <a href="transit.html">🚗 Trànsit</a>
+    <a href="buscador.html">🔍 El teu poble</a>
+    <button id="theme-toggle">🌓 Mode</button>
+  </nav>
+
+  <main class="container" style="display: block; text-align: center; max-width: 900px;">
+    <div id="buscador-container" style="margin-bottom: 30px;">
+      <input type="text" id="buscador-input" placeholder="Ex: València, Alacant, Morella..." list="municipios" style="padding: 12px; width: 60%; border-radius: 10px; border: 1px solid #ccc;">
+      <datalist id="municipios"></datalist>
+      <button onclick="realizarBusqueda()" style="padding: 12px 20px; border-radius: 10px; background: var(--accent); color: white; border: none; cursor: pointer;">Cercar</button>
+    </div>
+
+    <div id="resultado-tiempo"></div>
+  </main>
+
+  <footer>
+    <p>© 2025 Meteorologia Comunitat Valenciana — Desenvolupat per WireNext</p>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script>
+    // Cargar municipios desde JSON
+    async function init() {
+        const res = await fetch("municipis.json");
+        const data = await res.json();
+        const dl = document.getElementById("municipios");
+        data.municipis.forEach(m => {
+            const o = document.createElement("option");
+            o.value = m;
+            dl.appendChild(o);
+        });
+
+        // Búsqueda automática si hay algo guardado
+        const guardado = localStorage.getItem("ultimPobleBuscat");
+        if (guardado) {
+            document.getElementById("buscador-input").value = guardado;
+            realizarBusqueda();
+        }
+    }
+
+    function realizarBusqueda() {
+        const p = document.getElementById("buscador-input").value.trim();
+        if (p) {
+            localStorage.setItem("ultimPobleBuscat", p);
+            buscarTiempo(p, "resultado-tiempo");
+        }
+    }
+
+    document.getElementById("buscador-input").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") realizarBusqueda();
+    });
+
+    init();
+  </script>
+</body>
+</html>
