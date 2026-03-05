@@ -2,61 +2,50 @@
 <html lang="ca">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Radar Meteorològic - MeteoroCV</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Radar - Meteo CV</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="icon" href="multimedia/logo.png">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8789822435662410"
-     crossorigin="anonymous"></script>
 </head>
 <body>
-  <header>
-    <h1>Radar Meteorològic</h1>
-  </header>
-
-<nav>
-  <a href="index.html">
-    <span class="nav-icon">🏠</span>
-    <span class="nav-label">Inici</span>
-  </a>
-  <a href="avisos.html">
-    <span class="nav-icon">⚠️</span>
-    <span class="nav-label">Avisos</span>
-  </a>
-  <a href="radar.html">
-    <span class="nav-icon">🌧️</span>
-    <span class="nav-label">Radar</span>
-  </a>
-  <a href="transit.html">
-    <span class="nav-icon">🚗</span>
-    <span class="nav-label">Trànsit</span>
-  </a>
-  <a href="buscador.html">
-    <span class="nav-icon">🔍</span>
-    <span class="nav-label">Cerca</span>
-  </a>
-  <button id="theme-toggle">
-    <span class="nav-icon">🌓</span>
-    <span class="nav-label">Mode</span>
-  </button>
-</nav>
 
   <main class="container">
+    <header>
+      <h1>Radar de Pluja</h1>
+    </header>
+
     <div class="column">
-      <iframe 
-        src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=°C&metricWind=km/h&zoom=7&overlay=radar&product=radar&level=surface&lat=39.411&lon=-0.11&message=true"
-        loading="lazy"
-        allowfullscreen>
-      </iframe>
-        <p style="text-align: center; margin-top: 10px; font-size: 0.9em; opacity: 0.7;">
-    Dades proporcionades per Windy.com.
-  </p>
+      <h2>Precipitació en temps real</h2>
+      <iframe src="https://embed.windy.com/embed.html?type=map&location=coordinates&zoom=7&overlay=radar&product=radar&lat=39.4&lon=-0.4" loading="lazy"></iframe>
     </div>
+    
+    <p style="text-align: center; opacity: 0.7; font-size: 0.8rem;">
+        Dades actualitzades per Windy.
+    </p>
   </main>
 
-  <footer>
-    <p>© 2025 Meteorologia Comunitat Valenciana — Desenvolupat per WireNext</p>
-  </footer>
+  <nav>
+    <a href="index.html">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Inici</span>
+    </a>
+    <a href="avisos.html">
+      <span class="nav-icon">⚠️</span>
+      <span class="nav-label">Avisos</span>
+    </a>
+    <a href="radar.html">
+      <span class="nav-icon">🌧️</span>
+      <span class="nav-label">Radar</span>
+    </a>
+    <a href="transit.html">
+      <span class="nav-icon">🚗</span>
+      <span class="nav-label">Trànsit</span>
+    </a>
+    <button id="theme-toggle">
+      <span class="nav-icon">🌓</span>
+      <span class="nav-label">Mode</span>
+    </button>
+  </nav>
 
   <script src="js/script.js"></script>
 </body>
