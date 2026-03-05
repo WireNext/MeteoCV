@@ -92,7 +92,7 @@ function renderizar(data, nombre, targetId, aviso) {
             <div class="alerta-card" style="background-color: ${aviso.color}; color: ${textColor};">
                 <h4 style="margin:0;">⚠️ ${aviso.titulo}</h4>
                 <p class="alerta-desc" style="margin:8px 0; font-size:0.9rem;">${aviso.desc}</p>
-                <a href="https://www.aemet.es" target="_blank" style="color:${textColor}; font-weight:bold; font-size:0.8rem; border:1px solid ${textColor}; padding:3px 8px; border-radius:5px; text-decoration:none;">INFO AEMET</a>
+                <a href="avisos.html" target="_blank" style="color:${textColor}; font-weight:bold; font-size:0.8rem; border:1px solid ${textColor}; padding:3px 8px; border-radius:5px; text-decoration:none;">Veure mapa</a>
             </div>`;
     }
 
