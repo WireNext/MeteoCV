@@ -205,3 +205,21 @@ nav {
 nav a, #theme-toggle { text-decoration: none; color: white !important; display: flex; flex-direction: column; align-items: center; flex: 1; background: transparent; border: none; cursor: pointer; }
 .nav-icon { font-size: 1.3rem; }
 .nav-label { font-size: 0.65rem; font-weight: 500; }
+
+.alerta-card {
+    border-radius: 20px;
+    padding: 18px;
+    margin: 15px 0 25px 0;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+    animation: slideDown 0.5s ease-out;
+    text-shadow: none; /* Quitamos la sombra para que el texto sea nítido sobre el color del aviso */
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.alerta-desc {
+    font-weight: 500;
+}

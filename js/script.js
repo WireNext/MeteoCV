@@ -32,12 +32,69 @@ async function buscarTiempo(poble, targetId) {
     } catch (e) { console.error(e); }
 }
 
+// --- LÓGICA DEL BUSCADOR ---
+function ejecutarBusqueda() {
+    const input = document.getElementById("buscador-input");
+    const ciudad = input.value.trim();
+    
+    if (ciudad.length > 2) {
+        // Guardamos en el historial del navegador
+        localStorage.setItem("ultimPobleBuscat", ciudad);
+        // Ejecutamos la búsqueda principal
+        buscarTiempo(ciudad, "resultado-tiempo-home");
+        // Limpiamos el input y quitamos el foco
+        input.blur();
+    }
+}
+
+// Inicialización cuando carga la página
+document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
+
+    const inputBusqueda = document.getElementById("buscador-input");
+    const btnBusqueda = document.getElementById("btn-buscar");
+
+    // 1. Escuchar el clic en la lupa
+    if (btnBusqueda) {
+        btnBusqueda.onclick = (e) => {
+            e.preventDefault();
+            ejecutarBusqueda();
+        };
+    }
+
+    // 2. Escuchar la tecla ENTER
+    if (inputBusqueda) {
+        inputBusqueda.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                ejecutarBusqueda();
+            }
+        });
+    }
+
+    // 3. Cargar la última ciudad buscada o Valencia por defecto
+    const guardado = localStorage.getItem("ultimPobleBuscat") || "Valencia";
+    buscarTiempo(guardado, "resultado-tiempo-home");
+});
+
 // 3. RENDERIZAR
 function renderizar(data, nombre, targetId, aviso) {
     const container = document.getElementById(targetId);
     if(!container) return;
     const { current, daily, hourly } = data;
     const horaActual = new Date().getHours();
+
+    // Lógica de Alerta
+    let alertaHtml = "";
+    if (aviso && aviso.titulo) {
+        const textColor = (aviso.color === "#f3f702" || aviso.color === "yellow") ? "#222" : "#fff";
+        alertaHtml = `
+            <div class="alerta-card" style="background-color: ${aviso.color}; color: ${textColor};">
+                <h4 style="margin:0;">⚠️ ${aviso.titulo}</h4>
+                <p class="alerta-desc" style="margin:8px 0; font-size:0.9rem;">${aviso.desc}</p>
+                <a href="https://www.aemet.es" target="_blank" style="color:${textColor}; font-weight:bold; font-size:0.8rem; border:1px solid ${textColor}; padding:3px 8px; border-radius:5px; text-decoration:none;">INFO AEMET</a>
+            </div>`;
+    }
 
     let html = `
         <div class="weather-hero">
@@ -46,6 +103,8 @@ function renderizar(data, nombre, targetId, aviso) {
             <div class="hero-icon">${obtenerIcono(current.weather_code)}</div>
             <div class="hero-range">MÀX: ${Math.round(daily.temperature_2m_max[0])}° &nbsp;&nbsp; MÍN: ${Math.round(daily.temperature_2m_min[0])}°</div>
         </div>
+
+        ${alertaHtml}
 
         <div class="column">
             <h2>Pròximes 24 hores</h2>
@@ -68,31 +127,14 @@ function renderizar(data, nombre, targetId, aviso) {
             </div>`;
     }
     
-    html += `</div></div><div class="detalles-grid">
-<div class="detalle-card">
-                <h3>💨 VENT</h3>
-                <div class="detalle-valor">${Math.round(current.wind_speed_10m)} <small>km/h</small></div>
-            </div>
-            <div class="detalle-card">
-                <h3>💧 HUMITAT</h3>
-                <div class="detalle-valor">${current.relative_humidity_2m}%</div>
-            </div>
-            <div class="detalle-card">
-                <h3>☔ PLUJA</h3>
-                <div class="detalle-valor">${hourly.precipitation_probability[horaActual]}%</div>
-            </div>
-            <div class="detalle-card">
-                <h3>🌅 ALBA</h3>
-                <div class="detalle-valor">${daily.sunrise[0].split("T")[1]}</div>
-            </div>
-            <div class="detalle-card">
-                <h3>🌇 OCÀS</h3>
-                <div class="detalle-valor">${daily.sunset[0].split("T")[1]}</div>
-            </div>
-            <div class="detalle-card">
-                <h3>☀️ ÍNDEX UV</h3>
-                <div class="detalle-valor">${Math.round(daily.uv_index_max[0])}</div>
-            </div>
+    html += `</div></div>
+        <div class="detalles-grid">
+            <div class="detalle-card"><h3>💨 VENT</h3><div class="detalle-valor">${Math.round(current.wind_speed_10m)} <small>km/h</small></div></div>
+            <div class="detalle-card"><h3>💧 HUMITAT</h3><div class="detalle-valor">${current.relative_humidity_2m}%</div></div>
+            <div class="detalle-card"><h3>☔ PLUJA</h3><div class="detalle-valor">${hourly.precipitation_probability[horaActual]}%</div></div>
+            <div class="detalle-card"><h3>🌅 ALBA</h3><div class="detalle-valor">${daily.sunrise[0].split("T")[1]}</div></div>
+            <div class="detalle-card"><h3>🌇 OCÀS</h3><div class="detalle-valor">${daily.sunset[0].split("T")[1]}</div></div>
+            <div class="detalle-card"><h3>☀️ ÍNDEX UV</h3><div class="detalle-valor">${Math.round(daily.uv_index_max[0])}</div></div>
         </div>`;
 
     container.innerHTML = html;
@@ -103,49 +145,28 @@ function abrirDetalleDia(index) {
     const modal = document.getElementById("modal-detalle");
     const overlay = document.getElementById("modal-overlay");
     const d = datosGlobales;
+    if(!d) return;
     
     const fecha = new Date(d.daily.time[index]);
     document.getElementById("modal-titulo").innerText = fecha.toLocaleDateString("ca", { weekday: 'long', day: 'numeric', month: 'short' });
-    
-    const lluvia = d.daily.precipitation_sum[index];
-    document.getElementById("modal-lluvia").innerHTML = `<span>Previsió de pluja total</span><strong>${lluvia} mm</strong>`;
+    document.getElementById("modal-lluvia").innerHTML = `<span>Previsió de pluja total</span><strong>${d.daily.precipitation_sum[index]} mm</strong>`;
 
     let htmlTemp = "";
     let htmlPrecip = "";
     const start = index * 24;
 
-    // AHORA: Bucle de 1 en 1 para tener las 24 horas
     for (let i = 0; i < 24; i++) {
         const idx = start + i;
         const temp = Math.round(d.hourly.temperature_2m[idx]);
         const prob = d.hourly.precipitation_probability[idx];
-
-        // Gráfico Temperatura
-        htmlTemp += `
-            <div class="bar-item">
-                <span class="bar-val">${temp}°</span>
-                <div class="bar bar-temp" style="height:${Math.max(temp * 2.5, 4)}px"></div>
-                <span class="bar-time">${i}h</span>
-            </div>`;
-
-        // Gráfico Probabilidad de Lluvia
-        htmlPrecip += `
-            <div class="bar-item">
-                <span class="bar-val">${prob}%</span>
-                <div class="bar bar-precip" style="height:${Math.max(prob * 0.8, 4)}px"></div>
-                <span class="bar-time">${i}h</span>
-            </div>`;
+        htmlTemp += `<div class="bar-item"><span class="bar-val">${temp}°</span><div class="bar bar-temp" style="height:${Math.max(temp * 2.5, 4)}px"></div><span class="bar-time">${i}h</span></div>`;
+        htmlPrecip += `<div class="bar-item"><span class="bar-val">${prob}%</span><div class="bar bar-precip" style="height:${Math.max(prob, 4)}px"></div><span class="bar-time">${i}h</span></div>`;
     }
 
     document.getElementById("chart-temp").innerHTML = htmlTemp;
     document.getElementById("chart-precip").innerHTML = htmlPrecip;
-
     modal.classList.add("active");
     overlay.classList.add("active");
-    
-    // Resetear el scroll al principio cada vez que se abre
-    document.getElementById("chart-temp").scrollLeft = 0;
-    document.getElementById("chart-precip").scrollLeft = 0;
 }
 
 function cerrarModal() {
@@ -160,13 +181,26 @@ function obtenerIcono(code) {
     return "🌡️";
 }
 
+// FUNCIÓN DE AVISOS CORREGIDA
 async function obtenerAvisoDesdeGeoJSON(lat, lon) {
     try {
         const res = await fetch(urlGeoJSON);
         const data = await res.json();
         for (const feature of data.features) {
             if (puntoEnPoligono(lat, lon, feature.geometry.coordinates)) {
-                return { color: feature.properties.fillColor };
+                const props = feature.properties;
+                const temp = document.createElement("div");
+                temp.innerHTML = props.popup_html;
+                let descDetallada = "";
+                const parrafos = temp.querySelectorAll("p");
+                parrafos.forEach(p => {
+                    if (p.innerText.includes("Descripción:")) descDetallada = p.innerText.split("Descripción:")[1].trim();
+                });
+                return {
+                    titulo: temp.querySelector("h3") ? temp.querySelector("h3").innerText : "Avís Actiu",
+                    desc: descDetallada || (temp.querySelector("p:nth-of-type(3)") ? temp.querySelector("p:nth-of-type(3)").innerText : "Consulta els detalls."),
+                    color: props.fillColor || "#f3f702"
+                };
             }
         }
     } catch (e) {} return null;
