@@ -165,30 +165,41 @@ async function obtenerAvisoDesdeGeoJSON(lat, lon) {
         for (const feature of data.features) {
             if (puntoEnPoligono(lat, lon, feature.geometry.coordinates)) {
                 const props = feature.properties;
+                
+                // Creamos un elemento temporal para navegar por el HTML del popup
                 const temp = document.createElement("div");
                 temp.innerHTML = props.popup_html;
-                
-                let descDetallada = "";
-                let fechaInicio = "";
-                let fechaFin = "";
 
-                // Extraemos la información de los párrafos del popup
+                // Buscamos todos los párrafos <p>
                 const parrafos = temp.querySelectorAll("p");
+                let inicio = "No disponible";
+                let fin = "No disponible";
+                let descripcion = "";
+
                 parrafos.forEach(p => {
                     const texto = p.innerText;
-                    if (texto.includes("Descripción:")) descDetallada = texto.split("Descripción:")[1].trim();
-                    if (texto.includes("Comienzo:")) fechaInicio = texto.split("Comienzo:")[1].trim();
-                    if (texto.includes("Finalización:")) fechaFin = texto.split("Finalización:")[1].trim();
+                    // Buscamos por las palabras clave exactas que vienen en tu JSON
+                    if (texto.startsWith("Inicio:")) {
+                        inicio = texto.replace("Inicio:", "").trim();
+                    }
+                    if (texto.startsWith("Fin:")) {
+                        fin = texto.replace("Fin:", "").trim();
+                    }
+                    if (texto.startsWith("Descripción:")) {
+                        descripcion = texto.replace("Descripción:", "").trim();
+                    }
                 });
 
                 return {
                     titulo: temp.querySelector("h3") ? temp.querySelector("h3").innerText : "Avís Actiu",
-                    desc: descDetallada || (temp.querySelector("p:nth-of-type(3)") ? temp.querySelector("p:nth-of-type(3)").innerText : "Consulta els detalls."),
+                    desc: descripcion || "Consulta els detalls en el mapa.",
+                    inicio: inicio,
+                    fin: fin,
                     color: props.fillColor || "#f3f702"
                 };
             }
         }
-    } catch (e) { console.error("Error avisos:", e); } 
+    } catch (e) { console.error("Error en avisos:", e); } 
     return null;
 }
 
