@@ -89,10 +89,16 @@ function renderizar(data, nombre, targetId, aviso) {
     if (aviso && aviso.titulo) {
         const textColor = (aviso.color === "#f3f702" || aviso.color === "yellow") ? "#222" : "#fff";
         alertaHtml = `
-            <div class="alerta-card" style="background-color: ${aviso.color}; color: ${textColor};">
-                <h4 style="margin:0;">⚠️ ${aviso.titulo}</h4>
-                <p class="alerta-desc" style="margin:8px 0; font-size:0.9rem;">${aviso.desc}</p>
-                <a href="avisos.html" target="_blank" style="color:${textColor}; font-weight:bold; font-size:0.8rem; border:1px solid ${textColor}; padding:3px 8px; border-radius:5px; text-decoration:none;">Veure mapa</a>
+            <div class="alerta-card" style="background-color: ${aviso.color}; color: ${textColor}; border-left: 5px solid rgba(0,0,0,0.2);">
+                <h4 style="margin:0; font-size:1.1rem;">⚠️ ${aviso.titulo}</h4>
+                <p class="alerta-desc" style="margin:8px 0; font-size:0.9rem; font-weight:500;">${aviso.desc}</p>
+                
+                <div class="alerta-horario" style="font-size:0.8rem; opacity:0.9; margin-bottom:10px;">
+                    <div><strong>Inici:</strong> ${aviso.inicio}</div>
+                    <div><strong>Fi:</strong> ${aviso.fin}</div>
+                </div>
+
+                <a href="avisos.html" style="color:${textColor}; font-weight:bold; font-size:0.75rem; border:1px solid ${textColor}; padding:4px 10px; border-radius:8px; text-decoration:none; display:inline-block;">VEURE MAPA D'AVISOS</a>
             </div>`;
     }
 
@@ -191,19 +197,31 @@ async function obtenerAvisoDesdeGeoJSON(lat, lon) {
                 const props = feature.properties;
                 const temp = document.createElement("div");
                 temp.innerHTML = props.popup_html;
+                
                 let descDetallada = "";
+                let fechaInicio = "";
+                let fechaFin = "";
+
+                // Extraemos la información de los párrafos del popup
                 const parrafos = temp.querySelectorAll("p");
                 parrafos.forEach(p => {
-                    if (p.innerText.includes("Descripción:")) descDetallada = p.innerText.split("Descripción:")[1].trim();
+                    const texto = p.innerText;
+                    if (texto.includes("Descripción:")) descDetallada = texto.split("Descripción:")[1].trim();
+                    if (texto.includes("Comienzo:")) fechaInicio = texto.split("Comienzo:")[1].trim();
+                    if (texto.includes("Finalización:")) fechaFin = texto.split("Finalización:")[1].trim();
                 });
+
                 return {
                     titulo: temp.querySelector("h3") ? temp.querySelector("h3").innerText : "Avís Actiu",
-                    desc: descDetallada || (temp.querySelector("p:nth-of-type(3)") ? temp.querySelector("p:nth-of-type(3)").innerText : "Consulta els detalls."),
+                    desc: descDetallada || "Consulta els detalls en el mapa.",
+                    inicio: fechaInicio,
+                    fin: fechaFin,
                     color: props.fillColor || "#f3f702"
                 };
             }
         }
-    } catch (e) {} return null;
+    } catch (e) { console.error("Error avisos:", e); } 
+    return null;
 }
 
 function puntoEnPoligono(lat, lon, coords) {
