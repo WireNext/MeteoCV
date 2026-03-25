@@ -255,21 +255,40 @@ function actualizarNavegacion() {
 
 // 5. NOTIFICACIONES (CORREGIDO PARA FIREBASE)
 async function activarAlertas() {
+    console.log("Iniciant procés de registre...");
+    
+    // 1. Verificamos si el navegador soporta Service Workers
+    if (!('serviceWorker' in navigator)) {
+        console.error("Service Workers no soportados.");
+        return;
+    }
+
     try {
-        console.log("Petició de permís per a notificacions...");
-        const permission = await Notification.requestPermission();
-        
-        if (permission === 'granted') {
-            console.log("Permís concedit.");
-            if ('serviceWorker' in navigator) {
-                // Intentamos registrar el service worker de Firebase
-                const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-                console.log("Service Worker registrat:", reg);
-            }
+        // 2. Pedimos permiso (aunque ya esté dado en el candado, esto confirma el estado)
+        const permiso = await Notification.requestPermission();
+        console.log("Estat del permís:", permiso);
+
+        if (permiso === 'granted') {
+            // 3. Registramos el archivo que ya tienes creado
+            const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            console.log("Service Worker registrat amb èxit!", reg);
+
+            // 4. PRUEBA DE FUEGO: Forzamos una notificación local inmediata
+            // Esto aparecerá aunque Firebase no haya enviado nada todavía
+            setTimeout(() => {
+                reg.showNotification("Meteo CV", {
+                    body: "¡Les alertes s'han activat correctament! ⛈️",
+                    icon: "/multimedia/logo.png",
+                    badge: "/multimedia/logo.png" // El icono pequeño de la barra de estado
+                });
+            }, 1000);
+
         } else {
-            console.warn("Permís denegat per l'usuari.");
+            alert("Has denegat el permís. Revisa la configuració del navegador (icona del cadenat).");
         }
-    } catch (e) { console.error("Error en activarAlertas:", e); }
+    } catch (error) {
+        console.error("Error en el registre:", error);
+    }
 }
 
 // 6. INICIALIZACIÓN
