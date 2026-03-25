@@ -257,40 +257,49 @@ function actualizarNavegacion() {
 async function activarAlertas() {
     console.log("Iniciant procés de registre...");
     
-    // 1. Verificamos si el navegador soporta Service Workers
     if (!('serviceWorker' in navigator)) {
-        console.error("Service Workers no soportados.");
+        console.error("Service Workers no soportats.");
         return;
     }
 
     try {
-        // 2. Pedimos permiso (aunque ya esté dado en el candado, esto confirma el estado)
         const permiso = await Notification.requestPermission();
         console.log("Estat del permís:", permiso);
 
         if (permiso === 'granted') {
-            // 3. Registramos el archivo que ya tienes creado
+            // Registramos el worker
             const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            console.log("Service Worker registrat amb èxit!", reg);
+            console.log("Service Worker registrat!", reg);
 
-            // 4. PRUEBA DE FUEGO: Forzamos una notificación local inmediata
-            // Esto aparecerá aunque Firebase no haya enviado nada todavía
+            // Notificación local de cortesía
             setTimeout(() => {
                 reg.showNotification("Meteo CV", {
                     body: "¡Les alertes s'han activat correctament! ⛈️",
-                    icon: "/multimedia/logo.png",
-                    badge: "/multimedia/logo.png" // El icono pequeño de la barra de estado
+                    icon: "/multimedia/logo.png"
                 });
             }, 1000);
 
+            // OBTENER EL TOKEN (AQUÍ ESTÁ LA MAGIA)
+            // Usamos la variable 'messaging' que ya inicializamos en el index.html
+            const tokenActual = await messaging.getToken({ 
+                vapidKey: 'BNHbV334h0ARf_TNn0-wPFaUh_Yn8UGoaT13EDcEE2_4LNnnG9evdSNshbFhQuC1H68uH69pBoON_Ojmb8ehs8I' 
+            });
+
+            if (tokenActual) {
+                console.log("------------------------------------------");
+                console.log("🚀 TU TOKEN PARA FIREBASE:");
+                console.log(tokenActual);
+                console.log("------------------------------------------");
+            } else {
+                console.log("No s'ha pogut generar el token. Revisa Firebase.");
+            }
+
         } else {
-            alert("Has denegat el permís. Revisa la configuració del navegador (icona del cadenat).");
+            console.log("Permís denegat per l'usuari.");
         }
     } catch (error) {
-        console.error("Error en el registre:", error);
+        console.error("Error en el procés de notificacions:", error);
     }
-    const token = await messaging.getToken({ vapidKey: 'BNHbV334h0ARf_TNn0-wPFaUh_Yn8UGoaT13EDcEE2_4LNnnG9evdSNshbFhQuC1H68uH69pBoON_Ojmb8ehs8I' });
-    console.log("Copia este token para la prueba:", token);
 }
 
 // 6. INICIALIZACIÓN
