@@ -162,49 +162,58 @@ nav {
 }
 .resumen-lluvia strong { display: block; font-size: 1.4rem; color: #4facfe; margin-top: 5px; }
 
-/* --- GRÁFICOS DE BARRAS (CORREGIDO Y HORIZONTAL) --- */
-.modal-section-title { font-size: 0.75rem; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; margin: 20px 0 10px; }
-
-.chart-container {
-    display: flex; 
-    flex-direction: row; /* Fuerza orden horizontal */
-    align-items: flex-end; 
-    gap: 15px; 
-    height: 150px;
-    overflow-x: auto; 
-    padding: 20px 10px; 
-    background: rgba(255,255,255,0.03);
-    border-radius: 15px;
-    scrollbar-width: none;
+/* --- GRÁFICOS DE BARRAS (CORREGIDO) --- */
+.chart-section { 
+    margin-top: 25px; 
 }
-.chart-container::-webkit-scrollbar { display: none; }
+
+.chart-label { 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    opacity: 0.6; 
+    display: block; 
+    margin-bottom: 10px; 
+}
+
+.bar-row {
+    display: flex; 
+    flex-direction: row; /* Alineación horizontal */
+    align-items: flex-end; /* Las barras crecen desde abajo */
+    gap: 12px; 
+    height: 160px; /* Altura fija para el gráfico */
+    overflow-x: auto; /* Habilita el scroll horizontal */
+    padding: 15px 10px; 
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
+}
+
+/* Ocultar scrollbar pero mantener funcionalidad */
+.bar-row::-webkit-scrollbar { 
+    display: none; 
+}
+.bar-row { 
+    scrollbar-width: none; 
+}
 
 .bar-item { 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    min-width: 35px; /* Evita que se amontonen */
+    min-width: 35px; /* Importante para que no se encojan */
     height: 100%;
     justify-content: flex-end; 
 }
 
 .bar { 
-    width: 12px; /* Grosor elegante */
-    border-radius: 20px; /* Forma de píldora */
-    min-height: 4px; 
-    transition: height 1s ease-in-out;
-    position: relative;
+    width: 14px; 
+    border-radius: 10px; 
+    min-height: 2px; 
+    transition: height 0.5s ease;
 }
 
-.bar-temp { 
-    background: linear-gradient(to top, #f6d365, #fda085); 
-    box-shadow: 0 0 8px rgba(253, 160, 133, 0.4);
-}
-
-.bar-precip { 
-    background: linear-gradient(to top, #4facfe, #00f2fe); 
-    box-shadow: 0 0 8px rgba(79, 172, 254, 0.4);
-}
+.bar-temp { background: linear-gradient(to top, #f6d365, #fda085); }
+.bar-precip { background: linear-gradient(to top, #4facfe, #00f2fe); }
 
 .bar-val { font-size: 0.7rem; margin-bottom: 5px; font-weight: bold; }
 .bar-time { font-size: 0.6rem; margin-top: 8px; opacity: 0.5; }

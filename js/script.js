@@ -132,13 +132,25 @@ function abrirDetalleDia(index) {
     let htmlPrecip = "";
     const start = index * 24;
 
-    for (let i = 0; i < 24; i++) {
-        const idx = start + i;
-        const temp = Math.round(d.hourly.temperature_2m[idx]);
-        const prob = d.hourly.precipitation_probability[idx];
-        htmlTemp += `<div class="bar-item"><span class="bar-val">${temp}°</span><div class="bar bar-temp" style="height:${Math.max(temp * 2.5, 4)}px"></div><span class="bar-time">${i}h</span></div>`;
-        htmlPrecip += `<div class="bar-item"><span class="bar-val">${prob}%</span><div class="bar bar-precip" style="height:${Math.max(prob, 4)}px"></div><span class="bar-time">${i}h</span></div>`;
-    }
+for (let i = 0; i < 24; i++) {
+    const idx = start + i;
+    const temp = Math.round(d.hourly.temperature_2m[idx]);
+    const prob = d.hourly.precipitation_probability[idx];
+    
+    htmlTemp += `
+        <div class="bar-item">
+            <span class="bar-val">${temp}°</span>
+            <div class="bar bar-temp" style="height:${Math.max(temp * 3, 5)}px"></div>
+            <span class="bar-time">${i}h</span>
+        </div>`;
+        
+    htmlPrecip += `
+        <div class="bar-item">
+            <span class="bar-val">${prob}%</span>
+            <div class="bar bar-precip" style="height:${Math.max(prob * 1.2, 5)}px"></div>
+            <span class="bar-time">${i}h</span>
+        </div>`;
+}
 
     document.getElementById("chart-temp").innerHTML = htmlTemp;
     document.getElementById("chart-precip").innerHTML = htmlPrecip;
