@@ -299,6 +299,18 @@ function actualizarNavegacion() {
     });
 }
 
+async function activarAlertas() {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+        // Registro del worker
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        
+        // Aquí podrías usar una librería como 'fcm-browser' o llamar a una API
+        // Pero para empezar, con que den permiso ya puedes enviar pruebas desde la consola de Firebase
+        console.log("¡Permiso concedido!");
+    }
+}
+
 // 5. INICIALIZACIÓN (DOM CONTENT LOADED)
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();
@@ -326,6 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
             modalPriv.style.display = "none";
         };
     }
+document.getElementById("btn-acceptar-privacitat").addEventListener("click", activarAlertas);
 
     // Navegación Activa
     const navLinks = document.querySelectorAll('nav a');
