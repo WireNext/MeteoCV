@@ -255,50 +255,27 @@ function actualizarNavegacion() {
 
 // 5. NOTIFICACIONES (CORREGIDO PARA FIREBASE)
 async function activarAlertas() {
-    console.log("Iniciant procés de registre...");
-    
-    if (!('serviceWorker' in navigator)) {
-        console.error("Service Workers no soportats.");
-        return;
-    }
-
     try {
         const permiso = await Notification.requestPermission();
-        console.log("Estat del permís:", permiso);
-
         if (permiso === 'granted') {
-            // Registramos el worker
             const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            console.log("Service Worker registrat!", reg);
+            await navigator.serviceWorker.ready;
 
-            // Notificación local de cortesía
-            setTimeout(() => {
-                reg.showNotification("Meteo CV", {
-                    body: "¡Les alertes s'han activat correctament! ⛈️",
-                    icon: "/multimedia/logo.png"
-                });
-            }, 1000);
-
-            // OBTENER EL TOKEN (AQUÍ ESTÁ LA MAGIA)
-            // Usamos la variable 'messaging' que ya inicializamos en el index.html
-            const tokenActual = await messaging.getToken({ 
+            // Esto registra al usuario en Google en silencio
+            await messaging.getToken({ 
                 vapidKey: 'BNHbV334h0ARf_TNn0-wPFaUh_Yn8UGoaT13EDcEE2_4LNnnG9evdSNshbFhQuC1H68uH69pBoON_Ojmb8ehs8I' 
             });
 
-            if (tokenActual) {
-                console.log("------------------------------------------");
-                console.log("🚀 TU TOKEN PARA FIREBASE:");
-                console.log(tokenActual);
-                console.log("------------------------------------------");
-            } else {
-                console.log("No s'ha pogut generar el token. Revisa Firebase.");
-            }
-
-        } else {
-            console.log("Permís denegat per l'usuari.");
+            // OPCIONAL: Solo una notificación de bienvenida la primera vez
+            // Si no quieres que salga NADA, borra estas 4 líneas de abajo:
+            reg.showNotification("Meteo CV", {
+                body: "Has activat les alertes meteorològiques ⛈️",
+                icon: "/multimedia/logo.png"
+            });
         }
     } catch (error) {
-        console.error("Error en el procés de notificacions:", error);
+        // Error silencioso para no molestar al usuario
+        console.error("Error de registro");
     }
 }
 
