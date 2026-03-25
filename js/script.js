@@ -24,7 +24,6 @@ async function buscarTiempo(poble, targetId) {
         if (!geoData.results) return;
         const m = geoData.results[0];
         
-        // Guardamos memoria
         localStorage.setItem("ultimPobleBuscat", m.name);
         localStorage.setItem("ultimaLat", m.latitude);
         localStorage.setItem("ultimaLon", m.longitude);
@@ -65,12 +64,10 @@ function renderizar(data, nombre, targetId, aviso) {
             <div class="alerta-card" style="background-color: ${aviso.color}; color: ${textColor}; border-left: 5px solid rgba(0,0,0,0.2);">
                 <h4 style="margin:0; font-size:1.1rem;">⚠️ ${aviso.titulo}</h4>
                 <p class="alerta-desc" style="margin:8px 0; font-size:0.9rem; font-weight:500;">${aviso.desc}</p>
-                
                 <div class="alerta-horario" style="font-size:0.8rem; opacity:0.9; margin-bottom:10px;">
                     <div><strong>Inici:</strong> ${aviso.inicio}</div>
                     <div><strong>Fi:</strong> ${aviso.fin}</div>
                 </div>
-
                 <a href="avisos.html" style="color:${textColor}; font-weight:bold; font-size:0.75rem; border:1px solid ${textColor}; padding:4px 10px; border-radius:8px; text-decoration:none; display:inline-block;">VEURE MAPA D'AVISOS</a>
             </div>`;
     }
@@ -132,25 +129,25 @@ function abrirDetalleDia(index) {
     let htmlPrecip = "";
     const start = index * 24;
 
-for (let i = 0; i < 24; i++) {
-    const idx = start + i;
-    const temp = Math.round(d.hourly.temperature_2m[idx]);
-    const prob = d.hourly.precipitation_probability[idx];
-    
-    htmlTemp += `
-        <div class="bar-item">
-            <span class="bar-val">${temp}°</span>
-            <div class="bar bar-temp" style="height:${Math.max(temp * 3, 5)}px"></div>
-            <span class="bar-time">${i}h</span>
-        </div>`;
+    for (let i = 0; i < 24; i++) {
+        const idx = start + i;
+        const temp = Math.round(d.hourly.temperature_2m[idx]);
+        const prob = d.hourly.precipitation_probability[idx];
         
-    htmlPrecip += `
-        <div class="bar-item">
-            <span class="bar-val">${prob}%</span>
-            <div class="bar bar-precip" style="height:${Math.max(prob * 1.2, 5)}px"></div>
-            <span class="bar-time">${i}h</span>
-        </div>`;
-}
+        htmlTemp += `
+            <div class="bar-item">
+                <span class="bar-val">${temp}°</span>
+                <div class="bar bar-temp" style="height:${Math.max(temp * 3, 5)}px"></div>
+                <span class="bar-time">${i}h</span>
+            </div>`;
+            
+        htmlPrecip += `
+            <div class="bar-item">
+                <span class="bar-val">${prob}%</span>
+                <div class="bar bar-precip" style="height:${Math.max(prob * 1.2, 5)}px"></div>
+                <span class="bar-time">${i}h</span>
+            </div>`;
+    }
 
     document.getElementById("chart-temp").innerHTML = htmlTemp;
     document.getElementById("chart-precip").innerHTML = htmlPrecip;
@@ -177,36 +174,23 @@ async function obtenerAvisoDesdeGeoJSON(lat, lon) {
         for (const feature of data.features) {
             if (puntoEnPoligono(lat, lon, feature.geometry.coordinates)) {
                 const props = feature.properties;
-                
-                // Creamos un elemento temporal para navegar por el HTML del popup
                 const temp = document.createElement("div");
                 temp.innerHTML = props.popup_html;
 
-                // Buscamos todos los párrafos <p>
                 const parrafos = temp.querySelectorAll("p");
-                let inicio = "No disponible";
-                let fin = "No disponible";
-                let descripcion = "";
+                let inicio = "No disponible", fin = "No disponible", descripcion = "";
 
                 parrafos.forEach(p => {
                     const texto = p.innerText;
-                    // Buscamos por las palabras clave exactas que vienen en tu JSON
-                    if (texto.startsWith("Inicio:")) {
-                        inicio = texto.replace("Inicio:", "").trim();
-                    }
-                    if (texto.startsWith("Fin:")) {
-                        fin = texto.replace("Fin:", "").trim();
-                    }
-                    if (texto.startsWith("Descripción:")) {
-                        descripcion = texto.replace("Descripción:", "").trim();
-                    }
+                    if (texto.startsWith("Inicio:")) inicio = texto.replace("Inicio:", "").trim();
+                    if (texto.startsWith("Fin:")) fin = texto.replace("Fin:", "").trim();
+                    if (texto.startsWith("Descripción:")) descripcion = texto.replace("Descripción:", "").trim();
                 });
 
                 return {
                     titulo: temp.querySelector("h3") ? temp.querySelector("h3").innerText : "Avís Actiu",
                     desc: descripcion || "Consulta els detalls en el mapa.",
-                    inicio: inicio,
-                    fin: fin,
+                    inicio: inicio, fin: fin,
                     color: props.fillColor || "#f3f702"
                 };
             }
@@ -254,102 +238,76 @@ function obtenerUbicacionGPS() {
 function actualizarNavegacion() {
     const indicator = document.getElementById('nav-indicator');
     const navItems = document.querySelectorAll('.nav-item');
+    if (!indicator) return;
+
     const currentPath = window.location.pathname;
-
-    // 1. Recuperamos la última posición guardada para evitar el salto desde el inicio
-    const ultimaPosicion = localStorage.getItem('nav_pos_left');
-    const ultimoAncho = localStorage.getItem('nav_pos_width');
-
-    if (ultimaPosicion && ultimoAncho) {
-        // Desactivamos la transición un momento para colocarlo donde estaba antes
-        indicator.style.transition = 'none';
-        indicator.style.left = `${ultimaPosicion}px`;
-        indicator.style.width = `${ultimoAncho}px`;
-    }
-
     navItems.forEach(item => {
         const href = item.getAttribute('href');
-        
-        // Detectar si este es el botón activo
         if (href && (currentPath.endsWith(href) || (currentPath === "/" && href === "index.html"))) {
             item.classList.add('active');
-
-            // Forzamos un pequeño delay para que la transición se vea fluida
             setTimeout(() => {
-                indicator.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
                 indicator.style.left = `${item.offsetLeft}px`;
                 indicator.style.width = `${item.offsetWidth}px`;
-                
-                // Guardamos la nueva posición para la siguiente página
-                localStorage.setItem('nav_pos_left', item.offsetLeft);
-                localStorage.setItem('nav_pos_width', item.offsetWidth);
-            }, 50);
-        }
-
-        // Si el usuario hace clic en otro enlace, guardamos su posición actual justo antes de salir
-        if (href) {
-            item.addEventListener('click', () => {
-                const activoActual = document.querySelector('.nav-item.active');
-                if (activoActual) {
-                    localStorage.setItem('nav_pos_left', activoActual.offsetLeft);
-                    localStorage.setItem('nav_pos_width', activoActual.offsetWidth);
-                }
-            });
+            }, 100);
         }
     });
 }
 
+// 5. NOTIFICACIONES (CORREGIDO PARA FIREBASE)
 async function activarAlertas() {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-        // Registro del worker
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    try {
+        console.log("Petició de permís per a notificacions...");
+        const permission = await Notification.requestPermission();
         
-        // Aquí podrías usar una librería como 'fcm-browser' o llamar a una API
-        // Pero para empezar, con que den permiso ya puedes enviar pruebas desde la consola de Firebase
-        console.log("¡Permiso concedido!");
-    }
+        if (permission === 'granted') {
+            console.log("Permís concedit.");
+            if ('serviceWorker' in navigator) {
+                // Intentamos registrar el service worker de Firebase
+                const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                console.log("Service Worker registrat:", reg);
+            }
+        } else {
+            console.warn("Permís denegat per l'usuari.");
+        }
+    } catch (e) { console.error("Error en activarAlertas:", e); }
 }
 
-// 5. INICIALIZACIÓN (DOM CONTENT LOADED)
+// 6. INICIALIZACIÓN
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     actualizarNavegacion();
 
     // Eventos Buscador
-    const inputBusqueda = document.getElementById("buscador-input");
     const btnBusqueda = document.getElementById("btn-buscar");
     if (btnBusqueda) btnBusqueda.onclick = (e) => { e.preventDefault(); ejecutarBusqueda(); };
+    
+    const inputBusqueda = document.getElementById("buscador-input");
     if (inputBusqueda) inputBusqueda.onkeypress = (e) => { if (e.key === "Enter") ejecutarBusqueda(); };
 
     // Evento GPS
     const btnGPS = document.getElementById("btn-gps");
     if (btnGPS) btnGPS.onclick = () => obtenerUbicacionGPS();
 
-    // Modal Privacidad
+    // Gestión Unificada de Privacidad y Alertas
     const modalPriv = document.getElementById("modal-privacitat");
     const btnPriv = document.getElementById("btn-acceptar-privacitat");
+
     if (!localStorage.getItem("privadesa_v1") && modalPriv) {
         modalPriv.style.display = "flex";
     }
+
     if (btnPriv) {
-        btnPriv.onclick = () => {
+        btnPriv.onclick = async () => {
+            console.log("Acceptant privadesa...");
             localStorage.setItem("privadesa_v1", "true");
-            modalPriv.style.display = "none";
+            if (modalPriv) modalPriv.style.display = "none";
+            
+            // Lanzamos la petición de notificaciones al hacer clic
+            await activarAlertas();
         };
     }
-document.getElementById("btn-acceptar-privacitat").addEventListener("click", activarAlertas);
 
-    // Navegación Activa
-    const navLinks = document.querySelectorAll('nav a');
-    navLinks.forEach(link => {
-        link.onclick = () => {
-            navLinks.forEach(l => l.classList.remove('active'));
-            link.classList.add('active');
-        };
-    });
-
-    // CARGA INICIAL (MEMORIA)
+    // Carga inicial
     const ultimoNombre = localStorage.getItem("ultimPobleBuscat");
     const ultimaLat = localStorage.getItem("ultimaLat");
     const ultimaLon = localStorage.getItem("ultimaLon");
