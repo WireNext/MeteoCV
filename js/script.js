@@ -289,6 +289,8 @@ async function activarAlertas() {
     } catch (error) {
         console.error("Error en el registre:", error);
     }
+    const token = await messaging.getToken({ vapidKey: 'BNHbV334h0ARf_TNn0-wPFaUh_Yn8UGoaT13EDcEE2_4LNnnG9evdSNshbFhQuC1H68uH69pBoON_Ojmb8ehs8I' });
+    console.log("Copia este token para la prueba:", token);
 }
 
 // 6. INICIALIZACIÓN
