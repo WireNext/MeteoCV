@@ -222,15 +222,23 @@ function obtenerUbicacionGPS() {
         try {
             const resNom = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`);
             const dataNom = await resNom.json();
+            
+            // --- CAMBIO AQUÍ: Extraemos la provincia ---
             const nombrePueblo = dataNom.address.city || dataNom.address.town || dataNom.address.village || "La meua ubicació";
+            const provincia = dataNom.address.province || dataNom.address.state || "Comunitat Valenciana";
             
             localStorage.setItem("ultimPobleBuscat", nombrePueblo);
             localStorage.setItem("ultimaLat", lat);
             localStorage.setItem("ultimaLon", lon);
+            localStorage.setItem("ultimaProvincia", provincia);
             
             await cargarDirecto(lat, lon, nombrePueblo);
             input.placeholder = "Cerca el teu poble...";
             input.value = "";
+
+            if (localStorage.getItem("privadesa_v1")) {
+                activarAlertas(provincia);
+            }
         } catch (e) { console.error(e); }
     });
 }
@@ -254,28 +262,39 @@ function actualizarNavegacion() {
 }
 
 // 5. NOTIFICACIONES (CORREGIDO PARA FIREBASE)
-async function activarAlertas() {
+async function activarAlertas(provinciaManual = null) {
     try {
         const permiso = await Notification.requestPermission();
         if (permiso === 'granted') {
             const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
             await navigator.serviceWorker.ready;
 
-            // Esto registra al usuario en Google en silencio
-            await messaging.getToken({ 
+            const token = await messaging.getToken({ 
                 vapidKey: 'BNHbV334h0ARf_TNn0-wPFaUh_Yn8UGoaT13EDcEE2_4LNnnG9evdSNshbFhQuC1H68uH69pBoON_Ojmb8ehs8I' 
             });
 
-            // OPCIONAL: Solo una notificación de bienvenida la primera vez
-            // Si no quieres que salga NADA, borra estas 4 líneas de abajo:
-            reg.showNotification("Meteo CV", {
-                body: "Has activat les alertes meteorològiques ⛈️",
-                icon: "/multimedia/logo.png"
-            });
+            if (token) {
+                const prov = provinciaManual || localStorage.getItem("ultimaProvincia") || "General";
+                
+                // --- ESTO ES LO QUE HACÍA FALTA ---
+                const db = firebase.firestore();
+                await db.collection("usuarios_avisos").doc(token).set({
+                    token: token,
+                    provincia: prov,
+                    fecha: new Date(),
+                    plataforma: "web"
+                });
+                
+                console.log("¡Token guardado en Firestore para:", prov, "!");
+
+                reg.showNotification("Meteo CV", {
+                    body: `Alertes activades per a ${prov} ⛈️`,
+                    icon: "/multimedia/logo.png"
+                });
+            }
         }
     } catch (error) {
-        // Error silencioso para no molestar al usuario
-        console.error("Error de registro");
+        console.error("Error al activar alertas:", error);
     }
 }
 
