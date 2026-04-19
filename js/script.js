@@ -199,6 +199,40 @@ async function obtenerAvisoDesdeGeoJSON(lat, lon) {
     return null;
 }
 
+// --- LÓGICA DE AUTOCOMPLETADO ---
+async function initAutocompletado() {
+    const input = document.getElementById("buscador-input");
+    const datalist = document.getElementById("municipios");
+    
+    try {
+        // Cargamos el archivo JSON
+        const response = await fetch('municipis.json');
+        const data = await response.json();
+        const municipios = data.municipis;
+
+        // Escuchamos cuando el usuario escribe
+        input.addEventListener("input", () => {
+            const valor = input.value.toLowerCase();
+            datalist.innerHTML = ""; // Limpiamos opciones previas
+
+            if (valor.length < 2) return; // Empezar a sugerir tras 2 letras
+
+            // Filtramos y creamos las opciones
+            const filtrados = municipios.filter(m => 
+                m.toLowerCase().includes(valor)
+            ).slice(0, 10); // Limitamos a 10 sugerencias por rendimiento
+
+            filtrados.forEach(m => {
+                const option = document.createElement("option");
+                option.value = m;
+                datalist.appendChild(option);
+            });
+        });
+    } catch (e) {
+        console.error("Error cargando municipios para autocompletado:", e);
+    }
+}
+
 function puntoEnPoligono(lat, lon, coords) {
     let inside = false;
     let rings = Array.isArray(coords[0][0][0]) ? coords[0][0] : (Array.isArray(coords[0][0]) ? coords[0] : coords);
@@ -302,6 +336,7 @@ async function activarAlertas(provinciaManual = null) {
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     actualizarNavegacion();
+    initAutocompletado();
 
     // Eventos Buscador
     const btnBusqueda = document.getElementById("btn-buscar");
