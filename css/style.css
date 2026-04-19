@@ -220,9 +220,19 @@ nav {
 
 /* --- OTROS --- */
 .modal-full {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(12px);
-    z-index: 30000; display: none; align-items: center; justify-content: center; padding: 20px;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Fondo oscuro detrás */
+    backdrop-filter: blur(12px);
+    z-index: 30000; 
+    display: none; /* Se cambia a 'flex' por JS */
+    align-items: center; 
+    justify-content: center; 
+    padding: 20px;
+    box-sizing: border-box;
 }
 .seo-card {
     background: var(--card-bg); backdrop-filter: blur(10px);
@@ -230,3 +240,60 @@ nav {
     border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: var(--text-color);
 }
 iframe { width: 100%; height: 450px; border: none; display: block; border-radius: 0 0 20px 20px; }
+
+.modal-privacitat-content {
+    background: var(--bg-gradient); /* O un color sólido si prefieres */
+    background-color: #2a5298; /* Color de respaldo */
+    padding: 30px;
+    border-radius: 25px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.privacitat-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.privacitat-lista {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.privacitat-lista li {
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.btn-primari {
+    background: #4facfe;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: transform 0.2s;
+}
+
+.btn-primari:active {
+    transform: scale(0.98);
+}
+
+.nota-peu {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 15px;
+}
