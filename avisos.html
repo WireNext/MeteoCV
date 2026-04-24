@@ -12,8 +12,13 @@
   <main class="container">
     <header><h1>Avisos AEMET</h1></header>
 
-    <div class="column">
-      <iframe src="https://wirenext.github.io/AlertasAemet/" loading="lazy"></iframe>
+      <div class="column">
+      <div class="map-wrapper" id="wrapper-radar">
+        <button class="btn-fullscreen" onclick="toggleFullscreen('wrapper-radar')">
+          ⛶ Pantalla completa
+        </button>
+        <iframe src="https://wirenext.github.io/AlertasAemet/" loading="lazy"></iframe>
+      </div>
     </div>
     
     <section class="seo-card">

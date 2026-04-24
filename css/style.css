@@ -239,7 +239,13 @@ nav {
     border-radius: 20px; padding: 20px; margin: 20px auto; max-width: 800px;
     border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.9rem; color: var(--text-color);
 }
-iframe { width: 100%; height: 450px; border: none; display: block; border-radius: 0 0 20px 20px; }
+iframe { 
+    width: 100%; 
+    height: 600px; /* Aumentado de 450px a 600px */
+    border: none; 
+    display: block; 
+    border-radius: 0 0 20px 20px;
+}
 
 .modal-privacitat-content {
     background: var(--bg-gradient); /* O un color sólido si prefieres */
@@ -296,4 +302,38 @@ iframe { width: 100%; height: 450px; border: none; display: block; border-radius
     font-size: 0.7rem;
     opacity: 0.6;
     margin-top: 15px;
+}
+
+/* --- CONTENEDOR DE MAPA --- */
+.map-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Botón de Pantalla Completa */
+.btn-fullscreen {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    font-size: 0.8rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-fullscreen:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Ajuste específico para móviles muy pequeños */
+@media (max-height: 700px) {
+    iframe { height: 500px; }
 }

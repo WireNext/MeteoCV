@@ -332,6 +332,39 @@ async function activarAlertas(provinciaManual = null) {
     }
 }
 
+// Función para Pantalla Completa
+function toggleFullscreen(elementId) {
+    const elem = document.getElementById(elementId);
+
+    if (!document.fullscreenElement) {
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
+// Opcional: Ajustar el estilo cuando está en modo pantalla completa
+document.addEventListener('fullscreenchange', () => {
+    const maps = document.querySelectorAll('.map-wrapper iframe');
+    maps.forEach(map => {
+        if (document.fullscreenElement) {
+            map.style.height = "100vh";
+            map.style.borderRadius = "0";
+        } else {
+            map.style.height = "600px";
+            map.style.borderRadius = "0 0 20px 20px";
+        }
+    });
+});
+
 // 6. INICIALIZACIÓN
 document.addEventListener("DOMContentLoaded", () => {
     initTheme();

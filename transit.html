@@ -13,6 +13,15 @@
     <header><h1>Estat del Trànsit</h1></header>
 
     <div class="column">
+      <div class="map-wrapper" id="wrapper-radar">
+        <button class="btn-fullscreen" onclick="toggleFullscreen('wrapper-radar')">
+          ⛶ Pantalla completa
+        </button>
+        <iframe src="https://wirenext.github.io/IncidenciasCarreteras/" loading="lazy"></iframe>
+      </div>
+    </div>
+
+    <div class="column">
       <iframe src="https://wirenext.github.io/IncidenciasCarreteras/" loading="lazy"></iframe>
     </div>
 

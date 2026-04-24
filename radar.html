@@ -13,11 +13,16 @@
     <header><h1>Radar de Pluja</h1></header>
 
     <div class="column">
-      <iframe src="https://wirenext.github.io/RadarEspana/" loading="lazy"></iframe>
+      <div class="map-wrapper" id="wrapper-radar">
+        <button class="btn-fullscreen" onclick="toggleFullscreen('wrapper-radar')">
+          ⛶ Pantalla completa
+        </button>
+        <iframe src="https://wirenext.github.io/RadarEspana/" loading="lazy"></iframe>
+      </div>
     </div>
     
     <section class="seo-card">
-        <p>Segueix en temps real l'evolució de les precipitacions amb el nostre <strong>radar meteorològic</strong>. Visualitza on plou actualment i la trajectòria de les tempestes a València, Alacant i Castelló. Dades optimitzades per al seguiment de pluges i DANA en temps real.</p>
+        <p>Segueix en temps real l'evolució de les precipitacions amb el nostre <strong>radar meteorològic</strong>. Visualitza on plou actualment i la trajectòria de les tempestes a València, Alacant i Castelló. Dades oferides per https://www.rainviewer.com/.</p>
     </section>
   </main>
 
