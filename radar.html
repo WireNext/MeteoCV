@@ -10,19 +10,24 @@
 </head>
 <body>
   <main class="container">
-    <header><h1>Radar de Pluja</h1></header>
+    <header><h1>Visor Meteorològic</h1></header>
+
+    <div class="radar-selector" style="display: flex; gap: 10px; margin-bottom: 15px;">
+      <button class="btn-capa active" id="btn-radar-pluja" onclick="cambiarCapa('pluja')">🌧️ Pluja</button>
+      <button class="btn-capa" id="btn-radar-incendis" onclick="cambiarCapa('incendis')">🔥 Incendis</button>
+    </div>
 
     <div class="column">
       <div class="map-wrapper" id="wrapper-radar">
         <button class="btn-fullscreen" onclick="toggleFullscreen('wrapper-radar')">
           ⛶ Pantalla completa
         </button>
-        <iframe src="https://wirenext.github.io/RadarEspana/" loading="lazy"></iframe>
+        <iframe id="radar-iframe" src="https://wirenext.github.io/RadarEspana/" loading="lazy"></iframe>
       </div>
     </div>
     
     <section class="seo-card">
-        <p>Segueix en temps real l'evolució de les precipitacions amb el nostre <strong>radar meteorològic</strong>. Visualitza on plou actualment i la trajectòria de les tempestes a València, Alacant i Castelló. Dades oferides per https://www.rainviewer.com/.</p>
+        <p id="radar-desc">Segueix en temps real l'evolució de les precipitacions amb el nostre <strong>radar meteorològic</strong>. Visualitza on plou actualment i la trajectòria de les tempestes. Dades oferides per RainViewer.</p>
     </section>
   </main>
 

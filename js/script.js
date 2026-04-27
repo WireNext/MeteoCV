@@ -34,8 +34,17 @@ async function buscarTiempo(poble, targetId) {
 
 async function cargarDirecto(lat, lon, nombre, targetId = "resultado-tiempo-home") {
     try {
+        // 1. Fetch de meteorología (el que ya tienes)
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,precipitation_probability,precipitation&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,sunrise,sunset,precipitation_sum&timezone=auto`);
         datosGlobales = await res.json();
+
+        // 2. NUEVO: Fetch de Calidad del Aire (European AQI)
+        const resAire = await fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=european_aqi`);
+        const aireData = await resAire.json();
+        
+        // Guardamos el AQI dentro de nuestro objeto global
+        datosGlobales.aqi_actual = aireData.current.european_aqi;
+
         const aviso = await obtenerAvisoDesdeGeoJSON(lat, lon);
         renderizar(datosGlobales, nombre, targetId, aviso);
     } catch (e) { console.error(e); }
@@ -106,6 +115,12 @@ function renderizar(data, nombre, targetId, aviso) {
             <div class="detalle-card"><h3>💨 VENT</h3><div class="detalle-valor">${Math.round(current.wind_speed_10m)} <small>km/h</small></div></div>
             <div class="detalle-card"><h3>💧 HUMITAT</h3><div class="detalle-valor">${current.relative_humidity_2m}%</div></div>
             <div class="detalle-card"><h3>☔ PLUJA</h3><div class="detalle-valor">${hourly.precipitation_probability[horaActual]}%</div></div>
+            <div class="detalle-card">
+            <h3>🍃 AIRE (AQI)</h3>
+            <div class="detalle-valor" style="color: ${obtenerColorAQI(data.aqi_actual)}">
+                ${data.aqi_actual} <small>${obtenerTextoAQI(data.aqi_actual)}</small>
+            </div>
+        </div>
             <div class="detalle-card"><h3>☀️ ÍNDEX UV</h3><div class="detalle-valor">${Math.round(daily.uv_index_max[0])}</div></div>
             <div class="detalle-card"><h3>🌅 ALBA</h3><div class="detalle-valor">${daily.sunrise[0].split("T")[1]}</div></div>
             <div class="detalle-card"><h3>🌇 OCÀS</h3><div class="detalle-valor">${daily.sunset[0].split("T")[1]}</div></div>
@@ -197,6 +212,20 @@ async function obtenerAvisoDesdeGeoJSON(lat, lon) {
         }
     } catch (e) { console.error("Error en avisos:", e); } 
     return null;
+}
+
+function obtenerColorAQI(aqi) {
+    if (aqi <= 20) return "#4ade80"; // Bueno (Verde)
+    if (aqi <= 40) return "#fbbf24"; // Regular (Amarillo)
+    if (aqi <= 60) return "#fb923c"; // Moderado (Naranja)
+    return "#f87171"; // Pobre (Rojo)
+}
+
+function obtenerTextoAQI(aqi) {
+    if (aqi <= 20) return "Bo";
+    if (aqi <= 40) return "Reg.";
+    if (aqi <= 60) return "Mod.";
+    return "Pobre";
 }
 
 // --- LÓGICA DE AUTOCOMPLETADO ---
@@ -412,3 +441,23 @@ document.addEventListener("DOMContentLoaded", () => {
         buscarTiempo("Valencia", "resultado-tiempo-home");
     }
 });
+
+// Función para cambiar entre radar de lluvia e incendios
+function cambiarCapa(tipo) {
+    const iframe = document.getElementById('radar-iframe');
+    const desc = document.getElementById('radar-desc');
+    const btnPluja = document.getElementById('btn-radar-pluja');
+    const btnIncendis = document.getElementById('btn-radar-incendis');
+
+    if (tipo === 'pluja') {
+        iframe.src = "https://wirenext.github.io/RadarEspana/";
+        desc.innerHTML = "Segueix en temps real l'evolució de les precipitacions amb el nostre <strong>radar meteorològic</strong>. Visualitza on plou actualment i la trajectòria de les tempestes. Dades oferides per RainViewer.";
+        btnPluja.classList.add('active');
+        btnIncendis.classList.remove('active');
+    } else if (tipo === 'incendis') {
+        iframe.src = "https://wirenext.github.io/FireEsp/";
+        desc.innerHTML = "Consulta el risc d'incendi i els <strong>incendis actius</strong> en temps real. Mapa de punts calents i focus tèrmics detectats per satèl·lit.";
+        btnIncendis.classList.add('active');
+        btnPluja.classList.remove('active');
+    }
+}
