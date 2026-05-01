@@ -440,49 +440,60 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         buscarTiempo("Valencia", "resultado-tiempo-home");
     }
-
-    let touchStartY = 0;
-let touchEndY = 0;
-
-const modalDetalle = document.getElementById("modal-detalle");
-const dragArea = document.getElementById("modal-drag-area");
-
-dragArea.addEventListener('touchstart', e => {
-    touchStartY = e.targetTouches[0].screenY;
-}, { passive: true });
-
-dragArea.addEventListener('touchmove', e => {
-    touchEndY = e.targetTouches[0].screenY;
-    const distance = touchEndY - touchStartY;
-
-    // Si deslizamos hacia abajo, movemos el modal visualmente para dar feedback
-    if (distance > 0) {
-        modalDetalle.style.transform = `translateY(${distance}px)`;
-        modalDetalle.style.transition = "none"; // Quitamos transición para que sea fluido
-    }
-}, { passive: true });
-
-dragArea.addEventListener('touchend', e => {
-    const distance = touchEndY - touchStartY;
     
-    // Si el deslizamiento es mayor a 100px, cerramos
-    if (distance > 100) {
-        cerrarModal();
-    } 
-    
-    // Resetear posición y transiciones
-    modalDetalle.style.transform = "";
-    modalDetalle.style.transition = "bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
-});
+    // --- LÓGICA DE DESLIZAMIENTO MEJORADA ---
+let startY = 0;
+let currentY = 0;
+const modal = document.getElementById("modal-detalle");
+const header = document.querySelector(".modal-header");
 
-// Modifica tu función cerrarModal existente para asegurar que limpie el transform
+if (header) {
+    header.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        modal.style.transition = 'none'; // Quitamos animación para que siga al dedo
+    }, { passive: true });
+
+    header.addEventListener('touchmove', (e) => {
+        currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+
+        // Solo movemos si el deslizamiento es hacia abajo
+        if (deltaY > 0) {
+            modal.style.bottom = `-${deltaY}px`;
+        }
+    }, { passive: true });
+
+    header.addEventListener('touchend', (e) => {
+        const deltaY = currentY - startY;
+        
+        // Si ha deslizado más de 120px, cerramos el modal
+        if (deltaY > 120) {
+            cerrarModal();
+        } else {
+            // Si no, lo devolvemos a su posición original con suavidad
+            modal.style.transition = 'bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+            modal.style.bottom = '0';
+        }
+        
+        // Reset de variables
+        startY = 0;
+        currentY = 0;
+    });
+}
+
+// Asegúrate de que cerrarModal resetee el estilo bottom
 function cerrarModal() {
-    const modal = document.getElementById("modal-detalle");
+    const modalDetalle = document.getElementById("modal-detalle");
     const overlay = document.getElementById("modal-overlay");
-    modal.classList.remove("active");
+    
+    modalDetalle.style.transition = 'bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+    modalDetalle.classList.remove("active");
     overlay.classList.remove("active");
-    // Limpiamos el rastro del movimiento
-    setTimeout(() => { modal.style.transform = ""; }, 500);
+    
+    // Esperamos a que termine la animación para limpiar el estilo 'bottom'
+    setTimeout(() => {
+        modalDetalle.style.bottom = '';
+    }, 500);
 }
 });
 
