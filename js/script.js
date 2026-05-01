@@ -440,6 +440,50 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         buscarTiempo("Valencia", "resultado-tiempo-home");
     }
+
+    let touchStartY = 0;
+let touchEndY = 0;
+
+const modalDetalle = document.getElementById("modal-detalle");
+const dragArea = document.getElementById("modal-drag-area");
+
+dragArea.addEventListener('touchstart', e => {
+    touchStartY = e.targetTouches[0].screenY;
+}, { passive: true });
+
+dragArea.addEventListener('touchmove', e => {
+    touchEndY = e.targetTouches[0].screenY;
+    const distance = touchEndY - touchStartY;
+
+    // Si deslizamos hacia abajo, movemos el modal visualmente para dar feedback
+    if (distance > 0) {
+        modalDetalle.style.transform = `translateY(${distance}px)`;
+        modalDetalle.style.transition = "none"; // Quitamos transición para que sea fluido
+    }
+}, { passive: true });
+
+dragArea.addEventListener('touchend', e => {
+    const distance = touchEndY - touchStartY;
+    
+    // Si el deslizamiento es mayor a 100px, cerramos
+    if (distance > 100) {
+        cerrarModal();
+    } 
+    
+    // Resetear posición y transiciones
+    modalDetalle.style.transform = "";
+    modalDetalle.style.transition = "bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
+});
+
+// Modifica tu función cerrarModal existente para asegurar que limpie el transform
+function cerrarModal() {
+    const modal = document.getElementById("modal-detalle");
+    const overlay = document.getElementById("modal-overlay");
+    modal.classList.remove("active");
+    overlay.classList.remove("active");
+    // Limpiamos el rastro del movimiento
+    setTimeout(() => { modal.style.transform = ""; }, 500);
+}
 });
 
 // Función para cambiar entre radar de lluvia e incendios
