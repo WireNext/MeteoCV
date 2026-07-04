@@ -510,7 +510,7 @@ function cambiarCapa(tipo) {
         btnPluja.classList.add('active');
         btnIncendis.classList.remove('active');
     } else if (tipo === 'temp') {
-        iframe.src = "https://wirenext.github.io/TemperaturaEsp/";
+        iframe.src = "https://temperaturaesp.vercel.app/";
         desc.innerHTML = "Consulta les <strong>temperatures</strong> en temps real.";
         btnIncendis.classList.add('active');
         btnPluja.classList.remove('active');
