@@ -502,16 +502,16 @@ function cambiarCapa(tipo) {
     const iframe = document.getElementById('radar-iframe');
     const desc = document.getElementById('radar-desc');
     const btnPluja = document.getElementById('btn-radar-pluja');
-    const btnIncendis = document.getElementById('btn-radar-incendis');
+    const btnIncendis = document.getElementById('btn-radar-temp');
 
     if (tipo === 'pluja') {
         iframe.src = "https://wirenext.github.io/RadarEspana/";
         desc.innerHTML = "Segueix en temps real l'evolució de les precipitacions amb el nostre <strong>radar meteorològic</strong>. Visualitza on plou actualment i la trajectòria de les tempestes. Dades oferides per RainViewer.";
         btnPluja.classList.add('active');
         btnIncendis.classList.remove('active');
-    } else if (tipo === 'incendis') {
-        iframe.src = "https://wirenext.github.io/FireEsp/";
-        desc.innerHTML = "Consulta el risc d'incendi i els <strong>incendis actius</strong> en temps real. Mapa de punts calents i focus tèrmics detectats per satèl·lit.";
+    } else if (tipo === 'temp') {
+        iframe.src = "https://wirenext.github.io/TemperaturaEsp/";
+        desc.innerHTML = "Consulta les <strong>temperatures</strong> en temps real.";
         btnIncendis.classList.add('active');
         btnPluja.classList.remove('active');
     }
